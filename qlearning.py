@@ -1,8 +1,6 @@
 import numpy as np
 import random
 import tkinter as tk
-import os
-import pandas as pd
 
 # Usamos None para posições inválidas
 R = [
