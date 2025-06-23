@@ -65,7 +65,8 @@ def step(state, action):
 
 
 # GUI Tkinter
-CELL = 30
+CELL = 50
+UPDATE_INTERVAL = 10 # milissegundos
 
 
 class VisualApp:
@@ -119,17 +120,17 @@ class VisualApp:
             print("Treino concluído")
             self.demonstrar_resultados()
             return
-        a = self.agent.choose_action(self.state)
-        ns = step(self.state, a)
-        r = R[ns[0]][ns[1]]
-        self.agent.update(self.state, a, r, ns)
-        self.state = ns
-        self.canvas.coords(self.agent_vis, *self.cell_coords(ns))
+        action = self.agent.choose_action(self.state)
+        next_state = step(self.state, action)
+        reward = R[next_state[0]][next_state[1]]
+        self.agent.update(self.state, action, reward, next_state)
+        self.state = next_state
+        self.canvas.coords(self.agent_vis, *self.cell_coords(next_state))
         self.canvas.itemconfig(self.info_id, text=f"Ep {self.ep+1}/{self.episodes}")
         if self.state == GOAL:
             self.ep += 1
             self.reset_episode()
-        self.root.after(1, self.train_step)
+        self.root.after(UPDATE_INTERVAL, self.train_step)
 
     def demonstrar_resultados(self):
         arrow = {"N": "↑", "S": "↓", "L": "→", "O": "←"}
