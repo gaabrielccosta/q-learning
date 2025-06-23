@@ -2,6 +2,16 @@ import numpy as np
 import random
 import tkinter as tk
 
+
+
+# Variáveis de configuração
+GUI_SIZE = 50
+UPDATE_INTERVAL = 1 # milissegundos
+EPISODES = 2000
+
+
+
+
 # Usamos None para posições inválidas
 R = [
     [1, 1, 1, 1, -100, 1, 1, 1, 1, 1, 1, -100],
@@ -28,7 +38,7 @@ GOAL = (4, 11)
 
 
 class QLearningAgent:
-    def __init__(self, gamma=0.9):
+    def __init__(self, gamma):
         # Inicialização da tabela
         self.Q = {}
         for i, row in enumerate(R):
@@ -64,22 +74,17 @@ def step(state, action):
     return state
 
 
-# GUI Tkinter
-CELL = 50
-UPDATE_INTERVAL = 10 # milissegundos
-
-
 class VisualApp:
-    def __init__(self, agent, episodes=2000):
+    def __init__(self, agent, episodes):
         self.agent = agent
         self.episodes = episodes
         self.root = tk.Tk()
         self.canvas = tk.Canvas(
-            self.root, width=NUM_COLS * CELL, height=NUM_ROWS * CELL
+            self.root, width=NUM_COLS * GUI_SIZE, height=NUM_ROWS * GUI_SIZE
         )
         self.canvas.pack()
         self.draw_grid()
-        self.agent_vis = self.canvas.create_oval(0, 0, CELL, CELL, fill="red")
+        self.agent_vis = self.canvas.create_oval(0, 0, GUI_SIZE, GUI_SIZE, fill="red")
         self.info_id = self.canvas.create_text(
             5, 5, anchor="nw", font=("Arial", 10), text=""
         )
@@ -92,7 +97,7 @@ class VisualApp:
             for j, val in enumerate(row):
                 if val is None:
                     continue
-                x, y = j * CELL, i * CELL
+                x, y = j * GUI_SIZE, i * GUI_SIZE
                 color = "white"
                 if (i, j) == START:
                     color = "blue"
@@ -101,7 +106,7 @@ class VisualApp:
                 if val < 0:
                     color = "gray"
                 self.canvas.create_rectangle(
-                    x, y, x + CELL, y + CELL, fill=color, outline="black"
+                    x, y, x + GUI_SIZE, y + GUI_SIZE, fill=color, outline="black"
                 )
 
     def reset_episode(self):
@@ -112,8 +117,8 @@ class VisualApp:
 
     def cell_coords(self, state):
         i, j = state
-        x, y = j * CELL, i * CELL
-        return (x + 5, y + 5, x + CELL - 5, y + CELL - 5)
+        x, y = j * GUI_SIZE, i * GUI_SIZE
+        return (x + 5, y + 5, x + GUI_SIZE - 5, y + GUI_SIZE - 5)
 
     def train_step(self):
         if self.ep >= self.episodes:
@@ -138,8 +143,8 @@ class VisualApp:
         for (i, j), qvals in self.agent.Q.items():
             best_idx = int(np.argmax(qvals))
             best_act = ACTIONS[best_idx]
-            x = j * CELL + CELL / 2
-            y = i * CELL + CELL / 2
+            x = j * GUI_SIZE + GUI_SIZE / 2
+            y = i * GUI_SIZE + GUI_SIZE / 2
             self.canvas.create_text(
                 x, y, text=arrow[best_act], font=("Arial", 12, "bold"), fill="blue"
             )
@@ -147,4 +152,4 @@ class VisualApp:
 
 if __name__ == "__main__":
     agent = QLearningAgent(gamma=0.9)
-    VisualApp(agent, episodes=400)
+    VisualApp(agent, episodes=EPISODES)
